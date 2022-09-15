@@ -1,13 +1,9 @@
 import React, {useState} from "react";
+import { Link } from "react-router-dom";
 import SnackOrBoozeApi from "./Api";
 import { Card, CardBody, CardTitle, Button, Form, FormGroup, Label, Input} from "reactstrap";
 
-function FoodForm({addFood}){
-
-    //refresh the app to update food database
-    function loadRefreshContent() {
-		window.location.reload(false);
-    }
+function FoodForm({updateFood}){
 
     const initialState = {
         foodType:"",
@@ -18,19 +14,25 @@ function FoodForm({addFood}){
     }
 
     const [formData, setFormData] = useState(initialState)
+    const formKey = ["name", "description", "recipe", "serve"];
 
-    //show msg when form is submitted
-    // const [formSubmitionStatus, setFormSubmitionStatus] = useState("notSubmitted");
-    // const handleSubmitionStatus = () => {
-    //     setFormSubmitionStatus("Submitted");
-    // }
-    // const formSubmittedSuccess = (
-    //         <CardBody>
-    //             <CardTitle>
-    //                 You have successfully created a new food item!
-    //             </CardTitle>
-    //         </CardBody>
-    // )
+    //setting up newFood item
+    const [newFood, setNewFood] = useState({});
+    const [foodType, setFoodType] = useState("");
+
+    // show msg when form is submitted
+    const [formSubmitionStatus, setFormSubmitionStatus] = useState("notSubmitted");
+    const handleSubmitionStatus = () => {
+        setFormData(initialState);
+        setFormSubmitionStatus("Submitted");
+    }
+    const formSubmittedSuccess = (
+            <CardBody>
+                <CardTitle>
+                    You have successfully created <Link to={`/${foodType}/${newFood.id}`}><Button>{newFood.name}</Button></Link>!
+                </CardTitle>
+            </CardBody>
+    )
 
     //handle form change, submit, and validate if all data are inputted
     const handleChange = (e) => {
@@ -41,13 +43,14 @@ function FoodForm({addFood}){
         }))
     }
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (handleValidation() === true){
-            addFood({...formData});
-            SnackOrBoozeApi.createFood(formData, formData.foodType);
-            setFormData(initialState);
-            loadRefreshContent();
+            const foodToAdd = await SnackOrBoozeApi.createFood(formData, formData.foodType);
+            setNewFood(foodToAdd);
+            setFoodType(formData.foodType);
+            updateFood(formData.foodType);
+            handleSubmitionStatus();
         }
         return;
     }
@@ -65,8 +68,9 @@ function FoodForm({addFood}){
     //form to create a new food item
     return (
         <section>
+            {formSubmitionStatus === "Submitted" && formSubmittedSuccess}
             <Card>
-            {/* {formSubmitionStatus === "Submitted" && formSubmittedSuccess} */}
+            
                 <CardBody>
                     <CardTitle>
                         Create A New Food
@@ -79,47 +83,20 @@ function FoodForm({addFood}){
                                 <option value="drinks">Drinks</option>
                                 <option value="snacks">Snacks</option>
                             </Input>
-                        <FormGroup>
-                            <Label htmlFor="name">Name</Label>
-                            <Input 
-                                type="text" 
-                                id="name"
-                                name="name" 
-                                placeholder="Food Name"
-                                value={formData.name} 
-                                onChange={handleChange} />
-                        </FormGroup>
-                        <FormGroup>
-                            <Label htmlFor="description">Description</Label>
-                            <Input 
-                                type="text" 
-                                id="description"
-                                name="description" 
-                                placeholder="Food Description"
-                                value={formData.description} 
-                                onChange={handleChange} />
-                        </FormGroup>
-                        <FormGroup>
-                            <Label htmlFor="recipe">Recipe</Label>
-                            <Input 
-                                type="text" 
-                                id="recipe"
-                                name="recipe" 
-                                placeholder="Recipe" 
-                                value={formData.recipe} 
-                                onChange={handleChange} />
-                        </FormGroup>
-                        <FormGroup>
-                            <Label htmlFor="serve">Serve</Label>
-                            <Input
-                                type="text" 
-                                id="serve"
-                                name="serve" 
-                                placeholder="Serve" 
-                                value={formData.serve} 
-                                onChange={handleChange} />
-                        </FormGroup>                            
-                                
+                        
+                            {formKey.map((key) => 
+                                 <FormGroup>
+                                    <Label htmlFor={key}>{key}</Label>
+                                    <Input 
+                                        type="text" 
+                                        id={key}
+                                        name={key} 
+                                        placeholder={key}
+                                        value={formData.key} 
+                                        onChange={handleChange} />
+                                </FormGroup>
+                            )}
+
                         <Button>Create</Button>
                     </Form>                
                 </CardBody>

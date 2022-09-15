@@ -27,6 +27,13 @@
       "description": "Crisp!",
       "recipe": "Open can.",
       "serve": "Immediately."
+    },
+    {
+      "id": "0e04b6a1-c39e-4dba-a268-1ee1fc3ec506",
+      "name": "Lemonade",
+      "description": "sweet and sour drink",
+      "recipe": "3 cups of lemon juice, 2 cups of water, 1 cup of sugar",
+      "serve": "5"
     }
   ],
   "snacks": [

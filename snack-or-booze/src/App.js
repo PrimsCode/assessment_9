@@ -14,29 +14,36 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [snacks, setSnacks] = useState([]);
   const [drinks, setDrinks] = useState([]);
-  const [newFood, setNewFood] = useState([]);
 
-  const addFood = (newFood) => {
-    setNewFood(newFood)
-};
+  //functions to call food
+  const getSnacks = async() => {
+    let snacks = await SnackOrBoozeApi.getSnacks();
+    setSnacks(snacks);
+    setIsLoading(false);
+  }
 
-  useEffect(() => {
-    async function getSnacks() {
-      let snacks = await SnackOrBoozeApi.getSnacks();
-      setSnacks(snacks);
-      setIsLoading(false);
-    }
-    getSnacks();
-  }, []);
+  const getDrinks = async() => {
+    let drinks = await SnackOrBoozeApi.getDrinks();
+    setDrinks(drinks);
+    setIsLoading(false);
+  }
 
-  useEffect(() => {
-    async function getDrinks() {
+  const updateFood = async(foodType) => {
+    if (foodType === 'drinks'){
       let drinks = await SnackOrBoozeApi.getDrinks();
       setDrinks(drinks);
-      setIsLoading(false);
+    } else {
+      let snacks = await SnackOrBoozeApi.getSnacks();
+      setSnacks(snacks);
     }
+  }
+
+  //getting food during loading
+  useEffect(() => {
+    getSnacks();
     getDrinks();
   }, []);
+
 
   if (isLoading) {
     return <p>Loading &hellip;</p>;
@@ -64,7 +71,7 @@ function App() {
               <Food items={drinks} foodType="drinks" cantFind="/404" />
             </Route>
             <Route path="/add-new-food">
-              <Form addFood={addFood} cantFind="/404" />
+              <Form updateFood={updateFood} cantFind="/404" />
             </Route>
             <Route path="/404">
               <NotFound />
